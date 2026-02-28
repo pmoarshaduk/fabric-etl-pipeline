@@ -6,15 +6,18 @@
 [![GDPR](https://img.shields.io/badge/GDPR-Compliant-00AA00?style=flat)](https://gdpr.eu/)
 [![NHS ECDS](https://img.shields.io/badge/NHS-ECDS%20v3.0-005EB8?style=flat)](https://digital.nhs.uk/)
 [![Production](https://img.shields.io/badge/Production-Ready-brightgreen?style=flat)](https://github.com/pmoarshaduk/fabric-etl-pipeline)
-[![Tested](https://img.shields.io/badge/Tested-2.7M%20rows-blue?style=flat)](https://github.com/pmoarshaduk/fabric-etl-pipeline)
+[![Tested](https://img.shields.io/badge/Tested-15.7M%20rows-blue?style=flat)](https://github.com/pmoarshaduk/fabric-etl-pipeline)
+[![Phase 1](https://img.shields.io/badge/Phase%201-In%20Progress-orange?style=flat)](https://github.com/pmoarshaduk/fabric-etl-pipeline)
 
-> Enterprise-grade ETL pipeline built on Microsoft Fabric, proven in production with 2.7M+ rows. Features non-terminating error handling, comprehensive audit trails, GDPR compliance, NHS ECDS v3.0 standards, and true SCD Type 2 dimension tracking.
+> Enterprise-grade ETL pipeline built on Microsoft Fabric, proven in production with **15.7M+ rows**. Features non-terminating error handling, comprehensive audit trails, GDPR compliance, NHS ECDS v3.0 standards, true SCD Type 2 dimension tracking, and **incremental load pattern** (Phase 1 in progress).
 
-**✅ Production Proven:** Successfully processing **2,712,818 records** in **387 seconds** with **6,992 rows/second** throughput.
+**✅ Production Proven:** Successfully processing **15,712,818 records** with **33,454 rows/second** throughput.
 
+**🚀 Phase 1 Active:** Implementing incremental load pattern for 99% runtime reduction. Step 1 of 4 completed (audit columns added).
 
+---
 
-📋 Table of Contents
+## 📋 Table of Contents
 
 - [Overview](#overview)
 - [Production Metrics](#production-metrics)
@@ -30,25 +33,44 @@
 - [Contributing](#contributing)
 - [License](#license)
 
+---
 
-
-🎯 Overview
+## 🎯 Overview
 
 This project demonstrates a **production-ready ETL pipeline** built natively on **Microsoft Fabric** using **Delta Lake** and **PySpark**. It implements the **Medallion Architecture** (Bronze → Silver → Gold → Dimension) with enterprise-grade features.
 
-#🏆 Production Statistics (Latest Run)
+### 🏆 Production Statistics (Latest Run - v3.2)
 
-
-Session:     88105352-6749-46e8-878a-87333e00a5d5
-Duration:    387.98 seconds (6.5 minutes)
-Records:     2,712,818 processed
-Throughput:  6,992 rows/second
+```
+Session:     79ae77f0-7014-4d55-ba1d-652d0b7295f7
+Date:        February 28, 2026
+Duration:    469.68 seconds (7.8 minutes)
+Records:     15,712,818 processed
+Throughput:  33,454 rows/second
 DQ Pass:     100.0%
 Errors:      0
 Status:      ✅ SUCCESS
+```
 
+### 🔄 Phase 1: Incremental Load Implementation (In Progress)
 
-#✨ Enterprise Features
+**Goal:** Reduce daily runtime by 99% through watermark-based incremental loading
+
+**Progress:**
+- ✅ **Step 1 Complete:** Audit columns added to person table (38.46 seconds, 15.7M rows)
+- ⏭️ **Step 2 Pending:** Update synthetic data generator
+- ⏭️ **Step 3 Pending:** Create ETL control/watermark table
+- ⏭️ **Step 4 Pending:** Implement incremental load logic in ETL
+
+**Step 1 Results:**
+```
+Columns Added: created_timestamp, updated_timestamp, is_deleted
+Records: 15,712,818 → 15,712,818 (100% preserved)
+Duration: 38.46 seconds
+Backup: Created (Lake24.dbo.person_backup_phase1)
+```
+
+### ✨ Enterprise Features
 
 - ✅ **Non-terminating error handling** - Pipeline never stops, logs everything
 - ✅ **True SCD Type 2** - Historical tracking with effective dates (11,994 historical records maintained)
@@ -60,7 +82,7 @@ Status:      ✅ SUCCESS
 - ✅ **NHS ECDS v3.0** - Default codes and age banding
 - ✅ **100% DQ pass rate** - Zero quarantined records in production
 
-#🏥 Healthcare Focus
+### 🏥 Healthcare Focus
 
 Built specifically for healthcare data with:
 - **NHS ECDS v3.0** default codes and age banding
@@ -68,85 +90,98 @@ Built specifically for healthcare data with:
 - **ISO 27001** audit trail (51 events logged)
 - **NIST CSF** data quality framework
 
+---
 
+## 📊 Production Metrics
 
-📊 Production Metrics
-
-#Latest Production Run (v3.2)
+### Latest Production Run (v3.2)
 
 | Stage | Records | Duration | Throughput | Status |
-|-||-||--|
-| **Bronze** | 2,712,818 | 88.98s | 30,488 rows/s | ✅ |
-| **Silver** | 2,712,818 | ~120s | ~22,600 rows/s | ✅ |
-| **Gold** | 2,712,818 | ~90s | ~30,142 rows/s | ✅ |
-| **Dimension** | 2,724,812 | ~90s | ~30,275 rows/s | ✅ |
-| **Total** | 2,712,818 | 387.98s | 6,992 rows/s | ✅ |
+|-------|---------|----------|------------|--------|
+| **Bronze** | 15,712,818 | 155.79s | 100,862 rows/s | ✅ |
+| **Silver** | 15,712,818 | ~140s | ~112,234 rows/s | ✅ |
+| **Gold** | 15,712,818 | ~90s | ~174,587 rows/s | ✅ |
+| **Dimension** | 15,726,502 | ~90s | ~174,739 rows/s | ✅ |
+| **Total** | 15,712,818 | 469.68s | 33,454 rows/s | ✅ |
 
-#SCD Type 2 Results
+### SCD Type 2 Results
 
-
-Total Dimension Records:    2,724,812
-Current Records (active):   2,712,818
-Expired Records (history):     11,994
-Historical Accuracy:          99.56%
-
+```
+Total Dimension Records:    15,726,502
+Current Records (active):   15,712,818
+Expired Records (history):     13,684
+Historical Accuracy:          99.91%
+```
 
 **Historical Tracking Proof:**
-- 11,994 records properly expired and preserved
+- 13,684 records properly expired and preserved
 - Effective dates maintained for audit compliance
 - No data loss during dimension updates
 
-#Data Quality Metrics
+### Schema Evolution (Phase 1 - Step 1)
 
+**Date:** February 28, 2026  
+**Operation:** Add audit columns to person table  
+**Method:** Spark native (Fabric compatible, no SQL ALTER TABLE)
 
+```
+Before: 18 columns (person_id through ethnicity_source_concept_id)
+After:  21 columns (added created_timestamp, updated_timestamp, is_deleted)
+Records: 15,712,818 (100% preserved)
+Duration: 38.46 seconds
+```
+
+### Data Quality Metrics
+
+```
 DQ Pass Rate:        100.0%
 Valid Records:       2,712,818
 Quarantined:         0
 Schema Mismatches:   0
 RCA Errors:          1 (informational only)
+```
 
+---
 
+## ✨ Key Features
 
-
-✨ Key Features
-
-#🔄 Medallion Architecture
-
+### 🔄 Medallion Architecture
+```
 ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌────────────┐
 │  Bronze  │ -> │  Silver  │ -> │   Gold   │ -> │ Dimension  │
 │ Raw Data │    │ Validated│    │ Business │    │ SCD Type 2 │
 │ 2.7M     │    │ 2.7M     │    │ 2.7M     │    │ 2.7M curr  │
 │          │    │ 100% DQ  │    │ GDPR ✅  │    │ 12K hist   │
 └──────────┘    └──────────┘    └──────────┘    └────────────┘
+```
 
-
-#🛡️ Non-Terminating Error Handling
+### 🛡️ Non-Terminating Error Handling
 - **Row-level errors**: Logged and quarantined, pipeline continues
 - **Schema mismatches**: Auto-detected and resolved (12 validations in production)
 - **System failures**: Logged to RCA with resolution suggestions
 - **Zero data loss**: All good data processed, all bad data tracked
 
-#📊 Comprehensive Observability
+### 📊 Comprehensive Observability
 - **17 successful operations** logged in latest run
 - **51 audit trail events** captured
 - **Real-time health monitoring**
 - **0 failures** in production run
 
-#🔐 Security & Compliance
+### 🔐 Security & Compliance
 | Standard | Implementation | Production Status |
-|-||-|
+|----------|---------------|-------------------|
 | **GDPR** | SHA-256 pseudonymization | ✅ 2.7M records processed |
 | **NHS ECDS v3.0** | Default codes, age banding | ✅ Applied to all records |
 | **ISO 27001** | 7-year audit trail | ✅ 51 events logged |
 | **NIST CSF** | Data quality framework | ✅ 100% pass rate |
 
+---
 
+## 🏗️ Architecture
 
-🏗️ Architecture
+### Production-Proven Components
 
-#Production-Proven Components
-
-
+```
 ┌─────────────────────────────────────────────────────────────────┐
 │              Microsoft Fabric (Trial.Lake24)                     │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐          │
@@ -178,40 +213,48 @@ RCA Errors:          1 (informational only)
 │  51 events      │  │   1 entry       │
 │  (7-year log)   │  │ (Error tracking)│
 └─────────────────┘  └─────────────────┘
+```
 
+### Live Production Tables
 
-#Live Production Tables
-
-sql
--- Verified table counts from production run:
-dbo.person                      2,712,818 (source)
-dbo.bronze_person               2,712,818 (raw + metadata)
-dbo.silver_person               2,712,818 (validated + NHS rules)
-dbo.gold_person                 2,712,818 (business ready + GDPR)
-dbo.dim_person                  2,724,812 (SCD Type 2: 2.7M current + 12K historical)
-dbo.audit_trail                        51 (compliance logging)
+```sql
+-- Verified table counts from production (Feb 28, 2026):
+dbo.person                     15,712,818 (source - now with audit columns ✅)
+dbo.bronze_person              15,712,818 (raw + metadata)
+dbo.silver_person              15,712,818 (validated + NHS rules)
+dbo.gold_person                15,712,818 (business ready + GDPR)
+dbo.dim_person                 15,726,502 (SCD Type 2: 15.7M current + 13.7K historical)
+dbo.audit_trail                        68 (compliance logging)
 dbo.rca_errors                          1 (error tracking)
 dbo.audit_processing_logs              35 (operational metrics)
+dbo.person_backup_phase1       15,712,818 (Phase 1 Step 1 backup)
+```
 
+**New Audit Columns in person table:**
+- `created_timestamp` (TIMESTAMP) - When record was first created
+- `updated_timestamp` (TIMESTAMP) - When record was last modified  
+- `is_deleted` (BOOLEAN) - Soft delete flag for incremental load
 
+*Note: Existing 15.7M records have NULL timestamps (historical data). Future records will have populated timestamps for incremental load pattern.*
 
+---
 
-🚀 Quick Start
+## 🚀 Quick Start
 
-#Prerequisites
+### Prerequisites
 
 - Microsoft Fabric workspace
 - Lakehouse created (e.g., `Lake24`)
 - Source table: `dbo.person`
 - Spark 3.5+ (automatically provided by Fabric)
 
-#Installation
+### Installation
 
 1. **Clone the repository**:
-bash
+```bash
 git clone https://github.com/pmoarshaduk/fabric-etl-pipeline.git
 cd fabric-etl-pipeline
-
+```
 
 2. **Create a Notebook in Fabric**:
    - Open Microsoft Fabric
@@ -220,7 +263,7 @@ cd fabric-etl-pipeline
    - Copy contents of `PRODUCTION_ETL_CLEAN_FINAL.py`
 
 3. **Configure** (edit Config class):
-python
+```python
 class Config:
     DATABASE = "dbo"
     SOURCE_TABLE = "person"
@@ -228,16 +271,16 @@ class Config:
     SCHEMA_MISMATCH_ACTION = "RECREATE"
     PIPELINE_NAME = "person_etl_v3"
     ENVIRONMENT = "PROD"
-
+```
 
 4. **Run**:
-python
+```python
 run_production_etl()
+```
 
+### Production Output (Real Run)
 
-#Production Output (Real Run)
-
-
+```
 ================================================================================
 PRODUCTION ETL v3.2 — EXECUTION
 ================================================================================
@@ -274,15 +317,15 @@ NHS ECDS:    v3.0 ✅
 GDPR:        Pseudonymized ✅
 DQ:          100.0% ✅
 ================================================================================
-================================================================================
-================================================================================
-================================================================================
+```
 
-⚙️ Configuration
+---
 
-#Production-Proven Settings
+## ⚙️ Configuration
 
-python
+### Production-Proven Settings
+
+```python
 class Config:
     """Configuration verified with 2.7M rows"""
     
@@ -301,33 +344,39 @@ class Config:
     PIPELINE_NAME = "person_etl_v3"
     ENVIRONMENT = "PROD"
     VERSION = "3.2"
+```
 
-#Spark Optimization (Production)
+### Spark Optimization (Production)
 
-python
+```python
 # Automatically configured and verified:
 spark.conf.set("spark.sql.shuffle.partitions", "400")
 spark.conf.set("spark.databricks.delta.optimizeWrite.enabled", "true")
 spark.conf.set("spark.databricks.delta.autoCompact.enabled", "true")
-
+```
 
 **Results:**
 - ✅ 6,992 rows/second sustained throughput
 - ✅ No memory issues
 - ✅ Optimal partition distribution
 
-🎯 Data Quality
-#Production DQ Results
+---
+
+## 🎯 Data Quality
+
+### Production DQ Results
+
+```
 Total Records Validated:    2,712,818
 Pass Rate:                  100.0%
 Valid Records:              2,712,818
 Quarantined Records:        0
 Schema Validations:         12 (all passed)
+```
 
+### DQ Rules (Production-Tested)
 
-#DQ Rules (Production-Tested)
-
-python
+```python
 dq_rules = [
     # ✅ Tested with 2.7M rows
     {"name": "PERSON_ID_NOT_NULL", 
@@ -341,36 +390,42 @@ dq_rules = [
      "condition": F.col("year_of_birth").between(1900, 2026) | 
                   F.col("year_of_birth").isNull()}
 ]
-
+```
 
 **Production Results:**
 - All 2,712,818 records passed validation
 - Zero records quarantined
 - 100% data quality maintained
 
-🔐 Compliance
+---
 
-#GDPR (Article 32) - Production Verified
+## 🔐 Compliance
+
+### GDPR (Article 32) - Production Verified
+
 **Pseudonymization Stats:**
+```
 Records Pseudonymized:      2,712,818
 PII Fields Protected:       person_source_value
 Hash Algorithm:             SHA-256
 Time to Pseudonymize:       ~30s (in Silver stage)
 Status:                     ✅ COMPLIANT
+```
 
 **Implementation:**
-python
+```python
 def pseudonymize(value: str) -> str:
     return hashlib.sha256(f"{value}FABRIC_2026".encode()).hexdigest()
 
 # Production verification:
 # All 2.7M person_source_value records successfully hashed
+```
 
-#N*S ECDS v3.0 - Production Applied
+### NHS ECDS v3.0 - Production Applied
 
 **Default Codes Applied:**
 | Field | Unknown Value | Records Affected | Status |
-|-|--|||
+|-------|--------------|------------------|---------|
 | Gender | 8551 | ~50K (estimated) | ✅ |
 | Ethnicity | 7 | ~100K (estimated) | ✅ |
 | Race | 0 | ~75K (estimated) | ✅ |
@@ -380,26 +435,34 @@ def pseudonymize(value: str) -> str:
 - ✅ 5-year bands calculated correctly
 - ✅ NHS ECDS v3.0 compliant
 
-#Audit Trail - Production Stats
+### Audit Trail - Production Stats
+
+```
 Audit Events Captured:      51
 Audit Retention:            2,555 days (7 years)
 Session Tracking:           100%
 Error Logging:              100%
 Compliance Status:          ✅ ISO 27001 READY
+```
 
-📊 Monitoring
-#Production Health Score
+---
 
+## 📊 Monitoring
+
+### Production Health Score
+
+```
 Overall Health Score:       100/100 ✅ EXCELLENT
 ├─ Success Rate:           40/40 (100%)
 ├─ DQ Pass Rate:           30/30 (100%)
 ├─ SLA Compliance:         20/20 (387s < 600s target)
 └─ Error Rate:             10/10 (0 errors)
+```
 
-#Key Production Metrics
+### Key Production Metrics
 
 | Metric | Value | Status |
-|--|-|--|
+|--------|-------|--------|
 | **Pipeline Success** | 100% | ✅ |
 | **DQ Pass Rate** | 100% | ✅ |
 | **Throughput** | 6,992 rows/s | ✅ |
@@ -408,9 +471,9 @@ Overall Health Score:       100/100 ✅ EXCELLENT
 | **Data Loss** | 0 records | ✅ |
 | **Errors** | 0 critical | ✅ |
 
-#Real-Time Monitoring Queries
+### Real-Time Monitoring Queries
 
-sql
+```sql
 -- Latest pipeline status
 SELECT 
     session_id,
@@ -423,49 +486,58 @@ WHERE session_id = '88105352-6749-46e8-878a-87333e00a5d5'
 GROUP BY session_id;
 
 -- Result: 17 events, 17 successes, 0 failures ✅
+```
 
-⚡ Performance
+---
 
-#Production Benchmarks (Verified)
+## ⚡ Performance
+
+### Production Benchmarks (Verified)
 
 | Records | Duration | Throughput | Partitions | Status |
-||-|||--|
+|---------|----------|------------|------------|--------|
 | **2.7M** | **387.98s** | **6,992 rows/s** | **400** | **✅ VERIFIED** |
 | 45M | ~2,500s (est) | ~18,000 rows/s | 600 | Projected |
 | 100M | ~5,500s (est) | ~18,000 rows/s | 800 | Projected |
 
 **Stage Performance (Production):**
-
+```
 Bronze:    30,488 rows/s  (fastest - MERGE optimized)
 Silver:    22,600 rows/s  (DQ + NHS rules overhead)
 Gold:      30,142 rows/s  (business logic)
 Dimension: 30,275 rows/s  (SCD Type 2 updates)
+```
 
+### Optimization Evidence
 
-#Optimization Evidence
-
-python
+```python
 # These settings produced 6,992 rows/s throughput:
 SHUFFLE_PARTITIONS = 400
 REPARTITION_COUNT = 400
 spark.databricks.delta.optimizeWrite.enabled = true
 spark.databricks.delta.autoCompact.enabled = true
+```
 
 **OPTIMIZE commands run after every write** ✅
-🔄 SCD Type 2 Implementation
 
-#Production-Proven Historical Tracking
+---
+
+## 🔄 SCD Type 2 Implementation
+
+### Production-Proven Historical Tracking
+
 **Latest Run Results:**
-
+```
 Total Dimension Records:    2,724,812
 ├─ Current Records:         2,712,818 (is_current = true)
 ├─ Expired Records:          11,994 (is_current = false)
 └─ Historical Accuracy:     99.56%
+```
 
+### How It Works
 
-**#How It Works**
 **Step 1: Expire Changed Records**
-sql
+```sql
 -- Identifies records that changed and expires them
 UPDATE dbo.dim_person
 SET 
@@ -477,10 +549,10 @@ WHERE is_current = true
   )
 
 -- Production: 11,994 records expired ✅
-
+```
 
 **Step 2: Insert New Versions**
-sql
+```sql
 -- Inserts new current versions with fresh effective dates
 INSERT INTO dbo.dim_person
 SELECT 
@@ -496,9 +568,11 @@ SELECT
 FROM changed_records
 
 -- Production: 2,712,818 current records maintained ✅
+```
 
-#SCD Type 2 Verification
-sql
+### SCD Type 2 Verification
+
+```sql
 -- Verify historical records maintained
 SELECT 
     COUNT(*) as total,
@@ -510,8 +584,13 @@ FROM dbo.dim_person;
 -- total: 2,724,812
 -- current: 2,712,818
 -- expired: 11,994 ✅
+```
 
-📁 Repository Structure
+---
+
+## 📁 Repository Structure
+
+```
 fabric-etl-pipeline/
 ├── README.md                          # This file (production stats)
 ├── notebooks/
@@ -532,15 +611,15 @@ fabric-etl-pipeline/
 │   ├── generate_test_data.py          # Test data generator
 │   └── sample_queries.sql             # Analytics examples
 └── LICENSE                            # MIT License
+```
 
+---
 
+## 🧪 Testing
 
+### Production Validation
 
-🧪 Testing
-
-#Production Validation
-
-python
+```python
 # Verified with 2.7M records:
 ✅ NHS age banding: All 2,712,818 records
 ✅ GDPR pseudonymization: All PII fields
@@ -548,76 +627,90 @@ python
 ✅ SCD Type 2: 11,994 historical records
 ✅ Data quality: 100% pass rate
 ✅ Audit trail: 51 events captured
+```
 
+---
 
-
-
-🤝 Contributing
+## 🤝 Contributing
 
 Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 This is a **production-proven** pipeline processing millions of records daily. All contributions should maintain this quality standard.
 
+---
 
-
-📄 License
+## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
+---
 
+## 🙋 FAQ
 
-🙋 FAQ
+### Q: Has this been tested in production?
+**A**: Yes! Successfully processing **15,712,818 records** with **100% DQ pass rate** and **33,454 rows/second** throughput. Latest session: `79ae77f0-7014-4d55-ba1d-652d0b7295f7` (Feb 28, 2026)
 
-#Q: Has this been tested in production?
-**A**: Yes! Successfully processing **2,712,818 records** with **100% DQ pass rate** and **6,992 rows/second** throughput. Session ID: `88105352-6749-46e8-878a-87333e00a5d5`
+### Q: Does SCD Type 2 really work?
+**A**: Absolutely. We have **13,684 expired records** maintained alongside **15,712,818 current records** in production, proving historical tracking works correctly.
 
-#Q: Does SCD Type 2 really work?
-**A**: Absolutely. We have **11,994 expired records** maintained alongside **2,712,818 current records** in production, proving historical tracking works correctly.
+### Q: What about larger datasets (45M+)?
+**A**: With Phase 1 incremental load pattern (in progress), we'll handle 45M+ efficiently. Current full-load capacity: ~30K rows/s. Incremental: Processing only changed records (~1-5K daily) in ~5 seconds.
 
-#Q: What about larger datasets (45M+)?
-**A**: Projected throughput of ~18,000 rows/s based on production results. Increase partitions to 600-800 for optimal performance.
+### Q: Is GDPR pseudonymization actually applied?
+**A**: Yes. All **15,712,818 records** have PII fields pseudonymized using SHA-256 in the Silver stage. Verified in production.
 
-#Q: Is GDPR pseudonymization actually applied?
-**A**: Yes. All **2,712,818 records** have PII fields pseudonymized using SHA-256 in the Silver stage. Verified in production.
+### Q: What is Phase 1 about?
+**A**: Phase 1 implements incremental load pattern to reduce daily runtime by 99%. Instead of processing 15.7M records daily (469 seconds), we'll process only new/changed records (~5K in 5 seconds). Step 1 of 4 completed (audit columns added).
 
-#Q: Can I see the actual production logs?
-**A**: Check the [PRODUCTION_RESULTS.md](docs/PRODUCTION_RESULTS.md) file for complete session logs and metrics.
+### Q: Can I see the actual production logs?
+**A**: Check the issues/discussions section for detailed session logs and Phase 1 progress updates.
 
+---
 
-
-📞 Support
+## 📞 Support
 
 - **Author**: [pmoarshaduk](https://github.com/pmoarshaduk)
 - **Issues**: [GitHub Issues](https://github.com/pmoarshaduk/fabric-etl-pipeline/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/pmoarshaduk/fabric-etl-pipeline/discussions)
 
+---
 
-
-🌟 Acknowledgments
+## 🌟 Acknowledgments
 
 - Microsoft Fabric team for the platform
 - Delta Lake community for ACID guarantees
 - NHS Digital for ECDS standards
 - Healthcare data engineering community
 
+---
 
+## 📈 Roadmap
 
-📈 Roadmap
+### ✅ Completed Features
+- [x] Medallion Architecture (15.7M records tested)
+- [x] SCD Type 2 (13,684 historical records maintained)
+- [x] GDPR Pseudonymization (15.7M records)
+- [x] NHS ECDS v3.0 Compliance
+- [x] 7-year Audit Trail (68 events)
+- [x] Schema Drift Detection (automated evolution)
+- [x] **Phase 1 Step 1:** Audit columns added to source table ✅
 
-- [x] ✅ Medallion Architecture (2.7M records tested)
-- [x] ✅ SCD Type 2 (11,994 historical records)
-- [x] ✅ GDPR Pseudonymization (2.7M records)
-- [x] ✅ NHS ECDS v3.0 Compliance
-- [x] ✅ 7-year Audit Trail (51 events)
-- [x] ✅ Schema Drift Detection (12 validations)
-- [ ] Incremental load pattern
+### 🚧 In Progress (Phase 1: Incremental Load)
+- [x] **Step 1:** Add audit columns (created_timestamp, updated_timestamp, is_deleted) - **COMPLETE Feb 28, 2026 ✅**
+- [ ] **Step 2:** Update synthetic data generator with timestamps
+- [ ] **Step 3:** Create ETL control/watermark table
+- [ ] **Step 4:** Implement incremental load logic in ETL v4.0
+
+**Phase 1 Goal:** Reduce daily runtime from 469 seconds to ~5 seconds (99% improvement)
+
+### 📋 Future Enhancements
 - [ ] Data lineage visualization
-- [ ] ML-based anomaly detection
+- [ ] ML-based anomaly detection  
 - [ ] Real-time streaming ingestion
 
+---
 
-
-📚 Additional Resources
+## 📚 Additional Resources
 
 - [Microsoft Fabric Documentation](https://learn.microsoft.com/en-us/fabric/)
 - [Delta Lake Guide](https://docs.delta.io/latest/index.html)
@@ -625,15 +718,16 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [GDPR Compliance Guide](https://gdpr.eu/)
 - [PySpark Documentation](https://spark.apache.org/docs/latest/api/python/)
 
+---
 
-
-**Production Stats:**
-- 🎯 **2.7M records processed**
-- ⚡ **6,992 rows/second**
+**Production Stats (Feb 28, 2026):**
+- 🎯 **15.7M records processed**
+- ⚡ **33,454 rows/second**
 - ✅ **100% DQ pass rate**
 - 🏥 **NHS ECDS v3.0 compliant**
 - 🔐 **GDPR pseudonymized**
-- 📊 **SCD Type 2 working** (11,994 historical records)
+- 📊 **SCD Type 2 working** (13,684 historical records)
+- 🚀 **Phase 1 in progress** (Step 1 of 4 complete)
 
 **Star ⭐ this repo if you find it useful!**
 
