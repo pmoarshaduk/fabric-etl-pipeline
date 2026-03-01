@@ -13,7 +13,7 @@
 
 **✅ Production Proven:** Successfully processing **16,712,818 records** with **33,454 rows/second** throughput.
 
-**🚀 Phase 1 Active:** Implementing incremental load pattern for 99% runtime reduction. Step 2 of 4 completed (synthetic generator updated with audit column support).
+**🚀 Phase 1 Active:** Implementing incremental load pattern for 99% runtime reduction. Step 3 of 4 completed (ETL control table with watermark management ready). **Step 4 in progress!**
 
 ---
 
@@ -59,8 +59,8 @@ Status:      ✅ SUCCESS
 **Progress:**
 - ✅ **Step 1 Complete:** Audit columns added to person table (38.46 seconds, 15.7M rows preserved)
 - ✅ **Step 2 Complete:** Synthetic data generator updated with audit column support
-- ⏭️ **Step 3 Pending:** Create ETL control/watermark table
-- ⏭️ **Step 4 Pending:** Implement incremental load logic in ETL v4.0
+- ✅ **Step 3 Complete:** ETL control table created with watermark management
+- ⏭️ **Step 4 In Progress:** Implement incremental load logic in ETL v4.0
 
 **Step 1 Results:**
 ```
@@ -78,6 +78,16 @@ Duration: 12.29 seconds (81,377 rows/sec)
 Audit Columns: ✅ Populated with timestamps
 Total Records: 15,712,818 → 16,712,818
 Quality Checks: ✅ ALL PASSED
+```
+
+**Step 3 Results:**
+```
+Control Table: dbo.etl_control created
+Records: 4 (person: BRONZE, SILVER, GOLD, DIM)
+Helper Functions: 4 functions (get/update watermark, history, list)
+Tests: ✅ ALL PASSED (4/4)
+Simulation: ✅ Watermark update verified
+Duration: ~3 minutes
 ```
 
 ### ✨ Enterprise Features
@@ -229,8 +239,8 @@ RCA Errors:          1 (informational only)
 
 ```sql
 -- Verified table counts from production (Mar 1, 2026):
-dbo.person                     16,712,818 (source - now with audit columns ✅)
-dbo.bronze_person              15,712,818 (raw + metadata - will be updated in next ETL run)
+dbo.person                     16,712,818 (source - with audit columns ✅)
+dbo.bronze_person              15,712,818 (raw + metadata - will auto-update in Step 4)
 dbo.silver_person              15,712,818 (validated + NHS rules)
 dbo.gold_person                15,712,818 (business ready + GDPR)
 dbo.dim_person                 15,726,502 (SCD Type 2: 15.7M current + 13.7K historical)
@@ -238,17 +248,22 @@ dbo.audit_trail                        68 (compliance logging)
 dbo.rca_errors                          1 (error tracking)
 dbo.audit_processing_logs              35 (operational metrics)
 dbo.person_backup_phase1       15,712,818 (Phase 1 Step 1 backup)
+dbo.etl_control                         4 (Phase 1 Step 3: watermark management) ✅ NEW
 ```
 
-**New Audit Columns in person table:**
-- `created_timestamp` (TIMESTAMP) - When record was first created
-- `updated_timestamp` (TIMESTAMP) - When record was last modified  
-- `is_deleted` (BOOLEAN) - Soft delete flag for incremental load
+**ETL Control Table (Watermark Management):**
+```sql
+-- Controls incremental load for each table/layer
+person_BRONZE: last_watermark = 2026-03-01 07:24:00, status = SUCCESS (test simulation)
+person_SILVER: last_watermark = NULL, status = INITIALIZED (ready for first run)
+person_GOLD:   last_watermark = NULL, status = INITIALIZED
+person_DIM:    last_watermark = NULL, status = INITIALIZED
+```
 
-**Timestamp Population:**
+**Timestamp Population in person table:**
 - Existing 15.7M records: NULL (historical data, unknown creation time)
 - New 1M records (Step 2): 2026-03-01 timestamp (known creation time)
-- This mixed population is expected and correct for incremental load pattern ✅
+- This mixed population enables transition: full load → incremental load ✅
 
 ---
 
@@ -708,14 +723,17 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [x] Schema Drift Detection (automated evolution)
 - [x] **Phase 1 Step 1:** Audit columns added to source table ✅
 - [x] **Phase 1 Step 2:** Synthetic generator updated with audit support ✅
+- [x] **Phase 1 Step 3:** ETL control table with watermark management ✅
 
 ### 🚧 In Progress (Phase 1: Incremental Load)
 - [x] **Step 1:** Add audit columns (created_timestamp, updated_timestamp, is_deleted) - **COMPLETE Feb 28, 2026 ✅**
 - [x] **Step 2:** Update synthetic data generator with timestamps - **COMPLETE Mar 1, 2026 ✅**
-- [ ] **Step 3:** Create ETL control/watermark table
-- [ ] **Step 4:** Implement incremental load logic in ETL v4.0
+- [x] **Step 3:** Create ETL control/watermark table - **COMPLETE Mar 1, 2026 ✅**
+- [ ] **Step 4:** Implement incremental load logic in ETL v4.0 - **IN PROGRESS 🔄**
 
 **Phase 1 Goal:** Reduce daily runtime from 469 seconds to ~5 seconds (99% improvement)
+
+**Phase 1 Status:** 75% complete (3 of 4 steps done)
 
 ### 📋 Future Enhancements
 - [ ] Data lineage visualization
